@@ -1,26 +1,49 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+import { Logger } from './common';
+import { SailPointIIQAuthenticationProvider } from './auth/authProvider';
+import { 
+	IIQClient, 
+	IIQTextDocumentContentProvider,
+	IIQTreeDataProvider,
+	IIQTreeItem
+} from './iiq';
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
+let client: IIQClient;
+
+export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "vscode-sailpoint-iiq" is now active!');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('vscode-sailpoint-iiq.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from SailPoint IdentityIQ Developer Accelerator!');
-	});
+	const statusBar = vscode.window.createStatusBarItem('vscode-sailpoint-iiq.statusBar', vscode.StatusBarAlignment.Right, 99);
+	statusBar.command = 'vscode-sailpoint-iiq.toggleEnvironment';
 
-	context.subscriptions.push(disposable);
+	const contentSchema = 'sailpoint-iiq';
+	const contentProvider = new IIQTextDocumentContentProvider();
+	const output = vscode.window.createOutputChannel('SailPoint IdentityIQ', 'Log');
+	const logger = new Logger(output, vscode.workspace.getConfiguration('vscode-sailpoint-iiq'));
+	const authProvider = new SailPointIIQAuthenticationProvider(context.secrets, logger);
+	
+	client = new IIQClient(authProvider, context.workspaceState, statusBar, logger);
+	
+	const treeDataProvider = new IIQTreeDataProvider(client);
+
+	context.subscriptions.push(
+		vscode.authentication.registerAuthenticationProvider(SailPointIIQAuthenticationProvider.id, 'SailPoint IdentityIQ', authProvider),
+		vscode.window.registerTreeDataProvider('vscode-sailpoint-iiq.explorer', treeDataProvider),
+		vscode.workspace.registerTextDocumentContentProvider(contentSchema, contentProvider),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.openEnvironment', () => client.openEnvironment()),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.closeEnvironment', () => client.closeEnvironment()),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.toggleEnvironment', () => client.toggleEnvironment()),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.updateEnvironments', () => client.cacheEnvironments()),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.viewServerInfo', () => client.showServerInfo()),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.getServerInfo', () => client.getServerLog()),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.getObject', () => client.getObject()),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.refresh', () => treeDataProvider.refresh()),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.refresh', (node: IIQTreeItem) => treeDataProvider.refresh(node)),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.open', (iiqClass, iiqObject) => client.previewClassObject(iiqClass, iiqObject)),
+		client,
+		output
+	);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}

@@ -10,16 +10,129 @@
     "Other"
   ],
   "activationEvents": [
+    "onAuthenticationRequest:sailPointIIQAuthProvider",
     "onCommand:vscode-sailpoint-iiq.helloWorld"
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "authentication": [
+      {
+        "id": "sailPointIIQAuthProvider",
+        "label": "SailPoint IdentityIQ Authentication Provider"
+      }
+    ],
+    "configuration": [
+      {
+        "title": "SailPoint IIQ Developer Accelerator",
+        "properties": {
+          "vscode-sailpoint-iiq.logLevel": {
+            "type": "string",
+            "description": "The log level to use for the output channel.",
+            "default": "error",
+            "scope": "application",
+            "enum": [
+              "info",
+              "warn",
+              "error",
+              "debug"
+            ]
+          }
+        }
+      }
+    ],
     "commands": [
       {
-        "command": "vscode-sailpoint-iiq.helloWorld",
-        "title": "Hello World"
+        "command": "vscode-sailpoint-iiq.openEnvironment",
+        "title": "Open Environment",
+        "category": "IdentityIQ"
+      },
+      {
+        "command": "vscode-sailpoint-iiq.closeEnvironment",
+        "title": "Close Environment",
+        "category": "IdentityIQ",
+        "enablement": "vscode-sailpoint-iiq.environmentSelected"
+      },
+      {
+        "command": "vscdoe-sailpoint-iiq.toggleEnvironment",
+        "title": "Toggle Environment Open/Closed",
+        "category": "IdentityIQ",
+        "enablement": "false"
+      },
+      {
+        "command": "vscode-sailpoint-iiq.updateEnvironments",
+        "title": "Update Available Environments",
+        "category": "IdentityIQ"
+      },
+      {
+        "command": "vscode-sailpoint-iiq.viewServerInfo",
+        "title": "View Server Information",
+        "category": "IdentityIQ",
+        "enablement": "vscode-sailpoint-iiq.environmentSelected"
+      },
+      {
+        "command": "vscode-sailpoint-iiq.getServerInfo",
+        "title": "Get Server Log",
+        "category": "IdentityIQ",
+        "enablement": "vscode-sailpoint-iiq.environmentSelected"
+      },
+      {
+        "command": "vscode-sailpoint-iiq.getObject",
+        "title": "Get Server Object",
+        "category": "IdentityIQ",
+        "enablement": "vscode-sailpoint-iiq.environmentSelected"
+      },
+      {
+        "command": "vscode-sailpoint-iiq.explorer.refresh",
+        "title": "Refresh IdentityIQ Explorer",
+        "icon": "$(refresh)",
+        "category": "IdentityIQ",
+        "enablement": "vscode-sailpoint-iiq.environmentSelected && view == vscode-sailpoint-iiq.explorer"
+      },
+      {
+        "command": "vscode-sailpoint-iiq.explorer.object.refresh",
+        "title": "Refresh IdentityIQ Explorer",
+        "icon": "$(refresh)",
+        "category": "IdentityIQ",
+        "enablement": "vscode-sailpoint-iiq.environmentSelected && view == vscode-sailpoint-iiq.explorer"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "identityiq-explorer",
+          "title": "IdentityIQ Explorer",
+          "icon": "media/iiqexplore.svg",
+          "command": "vscode-sailpoint-iiq.explorer.refresh"
+        }
+      ]
+    },
+    "views": {
+      "identityiq-explorer": [
+        {
+          "id": "vscode-sailpoint-iiq.explorer",
+          "name": "IdentityIQ Explorer",
+          "icon": "media/iiqexplore.svg",
+          "contextualTitle": "IdentityIQ Explorer",
+          "when": "vscode-sailpoint-iiq.environmentSelected"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "vscode-sailpoint-iiq.explorer.refresh",
+          "when": "view == vscode-sailpoint-iiq.explorer",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "vscode-sailpoint-iiq.explorer.object.refresh",
+          "group": "inline",
+          "when": "viewItem == iiqClass"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
