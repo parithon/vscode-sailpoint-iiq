@@ -1,0 +1,4 @@
+[submodule "docker-sailpoint-iiq"]
+	path = test/docker
+	url = https://github.com/parithon/docker-sailpoint-iiq
+	branch = main
