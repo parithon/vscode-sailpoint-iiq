@@ -11,7 +11,10 @@
   ],
   "activationEvents": [
     "onAuthenticationRequest:sailPointIIQAuthProvider",
-    "onCommand:vscode-sailpoint-iiq.helloWorld"
+    "onCommand:vscode-sailpoint-iiq.openEnvironment",
+    "onCommand:vscode-sailpoint-iiq.closeEnvironment",
+    "onCommand:vscdoe-sailpoint-iiq.toggleEnvironment",
+    "workspaceContains:**/*.target.properties"
   ],
   "main": "./dist/extension.js",
   "contributes": {
