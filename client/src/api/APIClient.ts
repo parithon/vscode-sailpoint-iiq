@@ -255,11 +255,8 @@ export class APIClient {
         timeout: 10000000
     };
 
-    this.logger.debug('Fetching request using the following options', Object.assign({}, options, { headers: Object.assign({}, this.headers, { authorization: 'Basic ***'})}));
-
     try {
         const resp = await fetch(url.toString(), options);
-        this.logger.debug('fetch results', resp);
         response.ok = resp.ok;
         if (resp.ok) {
             const json: any = await resp.json();

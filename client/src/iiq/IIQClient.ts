@@ -234,7 +234,7 @@ export class IIQClient implements vscode.Disposable {
     if (this.currentEnvironment && this.client) {
       const obj = await this.client.getClassObject(className, objectName, showProgress);
       if (obj) {
-        const uri = vscode.Uri.parse(`sailpoint-iiq://object/?className=${className}&objectName=${objectName}#${base64.encode(obj.replace(/\\n/g, "\n"))}`);
+        const uri = vscode.Uri.parse(`sailpoint-iiq://object/${className}/${objectName}/#${base64.encode(obj.replace(/\\n/g, "\n"))}`);
         this.logger.debug(`Opening virtual document to view the document.`, uri);
         const doc = await vscode.workspace.openTextDocument(uri);
         if (doc) {
