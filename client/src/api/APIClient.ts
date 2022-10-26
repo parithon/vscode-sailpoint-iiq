@@ -33,7 +33,7 @@ export class APIClient {
           : new HttpAgent();
   }
 
-  public async authenticated(): Promise<[boolean, string | undefined]> {
+  public async authenticated(): Promise<[boolean, string | undefined, string | undefined]> {
     const requestUrl = this.getSanitizedUrl(`${this.baseUrl}${GetServiceEndpoints.authentication}`);
 
     var resp = await vscode.window.withProgress({
@@ -43,7 +43,7 @@ export class APIClient {
         return this.get<JsonAuthenticationResult>(requestUrl);
     });
 
-    return [resp.ok && resp.json?.authentication !== 'authenticationFailure', resp.json?.identity];
+    return [resp.ok && resp.json?.authentication !== 'authenticationFailure', resp.json?.identity, resp.fail];
   }
 
   public async getServerInfo(): Promise<SystemInfo | undefined> {

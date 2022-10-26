@@ -286,6 +286,7 @@ export class IIQClient implements vscode.Disposable {
       return [false, environment];
     }
 
+    let error = undefined;
     let credentials: Credential | undefined = environment.credentials;
     let authSession: vscode.AuthenticationSession | undefined;
 
@@ -314,10 +315,16 @@ export class IIQClient implements vscode.Disposable {
     let identity: string | undefined;
     if (environment.url) {
       this.client = new APIClient(environment.url, credentials, this.logger);
-      [authenticated, identity] = await this.client.authenticated();
+      [authenticated, identity, error] = await this.client.authenticated();
     }
     else if (!environment.url) {
       this.logger.warn(`IdentityIQ server URL is unknown; cancelled validating environment.`);
+      return [false, environment];
+    }
+
+    if (error) {
+      vscode.window.showErrorMessage('Could not contact server to validate credentials, please double-check your URL and try again.');
+      this.logger.error(error);
       return [false, environment];
     }
 
