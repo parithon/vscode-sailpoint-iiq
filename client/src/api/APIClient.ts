@@ -263,6 +263,38 @@ export class APIClient {
     }
   }
 
+  public async putClassObject(fileContent: string, showProgress: boolean = true): Promise<string | undefined> {
+    const requestUrl = this.getSanitizedUrl(`${this.baseUrl}${PostServiceEndpoints.workflowUrl}`);
+    const body = {
+        workflowArgs: {
+            operation: "Import",
+            resource: fileContent
+        }
+    };
+
+    let result: Response<JsonPayloadResult>;
+    if (showProgress) {
+        result = await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: 'Uploading object...',
+            cancellable: true   
+        }, progress => {
+            return this.post<JsonPayloadResult>(requestUrl, body);
+        });
+    } else {
+        result = await this.post<JsonPayloadResult>(requestUrl, body);
+    }
+
+    if (result.fail) {
+        vscode.window.showErrorMessage(`An error occurred while uploading object.\n${result.fail}`);
+        return;
+    }
+
+    if (result.json) {
+        return result.json.attributes.payload;
+    }
+  }
+
   private getSanitizedUrl(url: string): URL {
     url = url.replace(/\/\//g, "/");
     return new URL(url);

@@ -251,16 +251,17 @@ export class IIQClient implements vscode.Disposable {
   }
 
   public async downloadAllObjects(treeItem: IIQTreeItem, showProgress: boolean = true): Promise<void> {
-    const className = treeItem.label.toLocaleLowerCase();
+    const className = treeItem.label;
     if (this.currentEnvironment && this.client) {
       const workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath;
-      const objects = await this.client.getClassObjectsContents(treeItem.label, showProgress);
+      const objects = await this.client.getClassObjectsContents(className, showProgress);
       objects?.forEach(async (objectJSON) => {
         const object: {name: string, value: string} = JSON.parse(objectJSON);
         await fs.mkdir(`${workspacePath}/objects/${className}`, { recursive: true });
         await fs.writeFile(`${workspacePath}/objects/${className}/${object.name}.xml`, base64.decode(object.value), { encoding: 'utf8' });
       });
     }
+    this.findIIQObjects();
   }
 
   public async downloadObject(className: string, objectName: string, showProgress: boolean = true): Promise<void> {
@@ -269,6 +270,13 @@ export class IIQClient implements vscode.Disposable {
       if (obj) {
         // TODO: Save the file to a location provided.
       }
+    }
+  }
+
+  public async uploadObject(file: vscode.Uri) {
+    if (this.currentEnvironment && this.client) {
+      const doc = await vscode.workspace.openTextDocument(file);
+      await this.client.putClassObject(doc.getText());
     }
   }
 
@@ -349,6 +357,24 @@ export class IIQClient implements vscode.Disposable {
     }
   }
 
+  private async findIIQObjects() {
+    const objects: string[] = [];
+    const files = await vscode.workspace.findFiles('objects/**/*.xml');
+    for (let idx in files) {
+      const doc = await vscode.workspace.openTextDocument(files[idx]);
+      const matches = doc.getText()?.match(/!DOCTYPE (?<type>\w+)/);
+      if (matches && matches.groups && matches.groups['type']) {
+        switch (matches.groups['type']) {
+          case 'Rule':
+          case 'TaskDefinition':
+            objects.push(files[idx].fsPath);
+            break;
+        }
+      }
+    }
+    vscode.commands.executeCommand('setContext', 'vscode-sailpoint-iiq.objects', objects);
+  }
+
   private async init(): Promise<void> {
     await this.cacheEnvironments();
     const environment = this.workplaceState.get<string>('vscode-sailpoint-iiq.environment');
@@ -398,6 +424,9 @@ export class IIQClient implements vscode.Disposable {
     this.statusBarItem.show();
     this.logger.debug('vscode elements updated.');
     this._onDidChangeEnvironment.fire();
+
+    this.findIIQObjects();
+
   }
 
 }

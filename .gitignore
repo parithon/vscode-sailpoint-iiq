@@ -4,3 +4,4 @@ node_modules
 .vscode-test/
 *.vsix
 *.target.secrets.properties
+test/project/**/*

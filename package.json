@@ -111,6 +111,14 @@
         "icon": "$(cloud-download)",
         "category": "IdentityIQ",
         "enablement": "vscode-sailpoint-iiq.environmentSelected && view == vscode-sailpoint-iiq.explorer"
+      },
+      {
+        "command": "vscode-sailpoint-iiq.explorer.object.upload",
+        "title": "Upload Object to IdentityIQ",
+        "icon": "$(cloud-upload)",
+        "category": "IdentityIQ",
+        "enablement": "vscode-sailpoint-iiq.environmentSelected",
+        "shortTitle": "Upload"
       }
     ],
     "viewsContainers": {
@@ -135,6 +143,20 @@
       ]
     },
     "menus": {
+      "explorer/context": [
+        {
+          "command": "vscode-sailpoint-iiq.explorer.object.upload",
+          "group": "1_modification",
+          "when": "resourcePath in vscode-sailpoint-iiq.objects"
+        }
+      ],
+      "editor/context":[
+        {
+          "command": "vscode-sailpoint-iiq.explorer.object.upload",
+          "group": "1_run",
+          "when": "resourcePath in vscode-sailpoint-iiq.objects"
+        }
+      ],
       "view/title": [
         {
           "command": "vscode-sailpoint-iiq.explorer.refresh",
