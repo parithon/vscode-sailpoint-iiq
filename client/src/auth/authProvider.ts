@@ -36,6 +36,14 @@ export class SailPointIIQAuthenticationProvider implements vscode.Authentication
 
   constructor(private readonly secrets: vscode.SecretStorage, private readonly logger: Logger) {
     this.init();
+    this.onDidChangeSessions((e) => {
+      if (e.added && e.added.length > 0) {
+        this.logger.debug(`${e.added.length} ${e.added.length === 1 ? 'session' : 'sessions'} added`);
+      }
+      if (e.removed && e.removed.length > 0) {
+        this.logger.debug(`${e.removed.length} ${e.removed.length === 1 ? 'session' : 'sessions'} removed`);
+      }
+    });
   }
 
   async getSessions(scopes?: readonly string[] | undefined): Promise<readonly vscode.AuthenticationSession[]> {

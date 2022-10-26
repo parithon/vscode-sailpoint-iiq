@@ -231,6 +231,38 @@ export class APIClient {
     }
   }
 
+  public async getClassObjectsContents(theClass: string, showProgress: boolean = true): Promise<string[] | undefined> {
+    const requestUrl = this.getSanitizedUrl(`${this.baseUrl}${PostServiceEndpoints.workflowUrl}`);
+    const body = {
+        workflowArgs: {
+            operation: 'getClassObjectsContents',
+            theClass
+        }
+    };
+
+    let result: Response<JsonPayloadArrayResult>;
+    if (showProgress) {
+        result = await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: 'Retrieving objects...',
+            cancellable: true
+        }, progress => {
+            return this.post<JsonPayloadArrayResult>(requestUrl, body);
+        });
+    } else {
+        result = await this.post<JsonPayloadArrayResult>(requestUrl, body);
+    }
+
+    if (result.fail) {
+        vscode.window.showErrorMessage(`An error occurred while gathering '${theClass}'\n${result.fail}`);
+        return;
+    }
+
+    if (result.json) {
+        return result.json.attributes.payload;
+    }
+  }
+
   private getSanitizedUrl(url: string): URL {
     url = url.replace(/\/\//g, "/");
     return new URL(url);

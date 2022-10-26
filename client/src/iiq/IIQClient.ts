@@ -2,11 +2,13 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as base64 from 'base-64';
 import * as propertiesReader from 'properties-reader';
+import * as fs from 'fs/promises';
 
 import { SailPointIIQAuthenticationProvider } from '../auth/authProvider';
 import { Logger } from '../common';
 import { Environment } from './Environment';
 import { APIClient, Credential } from '../api';
+import { IIQTreeItem } from './IIQTreeItem';
 
 export class IIQClient implements vscode.Disposable {
   private readonly _onDidChangeEnvironment: vscode.EventEmitter<void> = new vscode.EventEmitter();
@@ -23,6 +25,7 @@ export class IIQClient implements vscode.Disposable {
           this.logger.debug('Sessions Changed');
           const authSession = await vscode.authentication.getSession(SailPointIIQAuthenticationProvider.id, [this.currentEnvironment.name], { silent: true });
           if (!authSession) {
+            this.logger.info(`Logged out of ${this.currentEnvironment.name}`);
             this.currentEnvironment = undefined;
           }
           else {
@@ -100,7 +103,10 @@ export class IIQClient implements vscode.Disposable {
   }
 
   public async closeEnvironment(): Promise<void> {
-    this.currentEnvironment = undefined;
+    if (this.currentEnvironment) {
+      this.logger.info(`Disconnected from ${this.currentEnvironment.name} session.`);
+      this.currentEnvironment = undefined;
+    }
     this.client = undefined;
     this.update();
   }
@@ -244,6 +250,28 @@ export class IIQClient implements vscode.Disposable {
     }
   }
 
+  public async downloadAllObjects(treeItem: IIQTreeItem, showProgress: boolean = true): Promise<void> {
+    const className = treeItem.label.toLocaleLowerCase();
+    if (this.currentEnvironment && this.client) {
+      const workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath;
+      const objects = await this.client.getClassObjectsContents(treeItem.label, showProgress);
+      objects?.forEach(async (objectJSON) => {
+        const object: {name: string, value: string} = JSON.parse(objectJSON);
+        await fs.mkdir(`${workspacePath}/objects/${className}`, { recursive: true });
+        await fs.writeFile(`${workspacePath}/objects/${className}/${object.name}.xml`, base64.decode(object.value), { encoding: 'utf8' });
+      });
+    }
+  }
+
+  public async downloadObject(className: string, objectName: string, showProgress: boolean = true): Promise<void> {
+    if (this.currentEnvironment && this.client) {
+      const obj = await this.client.getClassObject(className, objectName, showProgress);
+      if (obj) {
+        // TODO: Save the file to a location provided.
+      }
+    }
+  }
+
   private async validateCredentials(environment: Environment, unsecure: boolean = false, iteration: number = 0): Promise<[boolean, Environment]> {
     if (iteration >= 3) {
       this.logger.error('Could not validate credentials; cancelled validating environment.');
@@ -313,7 +341,7 @@ export class IIQClient implements vscode.Disposable {
     const [authenticated, env] = await this.validateCredentials(environment, environment.credentials !== undefined);
 
     if (authenticated) {
-      this.logger.info(`Logged into ${env.name}`)
+      this.logger.info(`Logged into ${env.name}`);
       this.currentEnvironment = env;
     }
     else {
@@ -325,7 +353,13 @@ export class IIQClient implements vscode.Disposable {
     await this.cacheEnvironments();
     const environment = this.workplaceState.get<string>('vscode-sailpoint-iiq.environment');
     if (environment && this.cachedEnvironments.some(env => env.name)) {
-      await this.logIntoEnvironment(environment);
+      if ((await this.authProvider.getSessions([environment])).length > 0) {
+        await this.logIntoEnvironment(environment);
+      }
+      else {
+        this.logger.warn(`Last used environment (${environment}) found but no credentials were loaded; cancelled opening environment.`);
+        this.workplaceState.update('vscode-sailpoint-iiq.environment', undefined);
+      }
     }
     else if (environment) {
       this.logger.warn(`Last used environment (${environment}) could not be found; cancelled opening environment.`);

@@ -97,6 +97,20 @@
         "icon": "$(refresh)",
         "category": "IdentityIQ",
         "enablement": "vscode-sailpoint-iiq.environmentSelected && view == vscode-sailpoint-iiq.explorer"
+      },
+      {
+        "command": "vscode-sailpoint-iiq.explorer.object.downloadAll",
+        "title": "Download All",
+        "icon": "$(cloud-download)",
+        "category": "IdentityIQ",
+        "enablement": "vscode-sailpoint-iiq.environmentSelected && view == vscode-sailpoint-iiq.explorer"
+      },
+      {
+        "command": "vscode-sailpoint-iiq.explorer.object.download",
+        "title": "Download",
+        "icon": "$(cloud-download)",
+        "category": "IdentityIQ",
+        "enablement": "vscode-sailpoint-iiq.environmentSelected && view == vscode-sailpoint-iiq.explorer"
       }
     ],
     "viewsContainers": {
@@ -133,6 +147,21 @@
           "command": "vscode-sailpoint-iiq.explorer.object.refresh",
           "group": "inline",
           "when": "viewItem == iiqClass"
+        },
+        {
+          "command": "vscode-sailpoint-iiq.explorer.object.downloadAll",
+          "group": "inline",
+          "when": "viewItem == iiqClass"
+        },
+        {
+          "command": "vscode-sailpoint-iiq.explorer.object.download",
+          "group": "inline",
+          "when": "viewItem == iiqClassObject"
+        },
+        {
+          "command": "vscode-sailpoint-iiq.explorer.object.download",
+          "group": "context",
+          "when": "viewItem == iiqClassObject"
         }
       ]
     }
