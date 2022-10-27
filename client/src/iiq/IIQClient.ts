@@ -12,6 +12,7 @@ import { IIQTreeItem } from './IIQTreeItem';
 
 export class IIQClient implements vscode.Disposable {
   private readonly _onDidChangeEnvironment: vscode.EventEmitter<void> = new vscode.EventEmitter();
+  private configuration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('vscode-sailpoint-iiq');
   private disposables: vscode.Disposable;
   private cachedEnvironments: Environment[] = [];
   private currentEnvironment?: Environment;
@@ -20,6 +21,11 @@ export class IIQClient implements vscode.Disposable {
   constructor(private readonly authProvider: SailPointIIQAuthenticationProvider, private readonly workplaceState: vscode.Memento, private readonly statusBarItem: vscode.StatusBarItem, private readonly logger: Logger) {
     this.init();
     this.disposables = vscode.Disposable.from(
+      vscode.workspace.onDidChangeConfiguration(e => {
+        if (e.affectsConfiguration('vscode-sailpoint-iiq')) {
+          this.configuration = vscode.workspace.getConfiguration('vscode-sailpoint-iiq');
+        }
+      }),
       vscode.authentication.onDidChangeSessions(async (event) => {
         if (event.provider.id === SailPointIIQAuthenticationProvider.id && this.currentEnvironment !== undefined) {
           this.logger.debug('Sessions Changed');
@@ -273,10 +279,42 @@ export class IIQClient implements vscode.Disposable {
     }
   }
 
-  public async uploadObject(file: vscode.Uri) {
+  public async uploadObject(files: vscode.Uri[]) {
     if (this.currentEnvironment && this.client) {
-      const doc = await vscode.workspace.openTextDocument(file);
-      await this.client.putClassObject(doc.getText());
+      this.logger.info(`Uploading files to IdentityIQ`);
+      if (Array.isArray(files)) {        
+        if (files.length > 1 && (this.configuration.get<boolean>('challengeFileUpload') ?? true)) {
+          const result = await vscode.window.showInformationMessage(`You have selected to upload multiple files, continue?`, 'Yes','No','Always');
+          if (!result || result === 'No') { 
+            this.logger.info(`Uploading files cancelled by end user.`);
+            return; 
+          }
+          if (result === 'Always') {
+            this.logger.info(`You will no longer be asked to upload multiple files.`);
+            await this.configuration.update('challengeFileUpload', false);
+          }
+        }
+        await vscode.window.withProgress({
+          location: vscode.ProgressLocation.Notification,
+          title: 'Uploading Files to IdentityIQ',
+          cancellable: true
+        }, async (progress, cancellationToken) => {
+          for (let idx in files) {
+            if (cancellationToken) { return; }
+            const doc = await vscode.workspace.openTextDocument(files[idx]);
+            await this.client?.putClassObject(doc.getText(), false);
+            this.logger.info(`Uploaded ${files[idx].path.split('/').at(-1)} uploaded to IdentityIQ`);
+            progress.report({
+              message: `[${Number(idx)+1}/${files.length}] Uploaded ${files[idx].path.split('/').at(-1)}`,
+              increment: (Number(idx)+1)/files.length
+            });
+          }
+        });
+      }
+      else {
+        const doc = await vscode.workspace.openTextDocument(files);
+        await this.client.putClassObject(doc.getText());
+      }
     }
   }
 
@@ -364,8 +402,8 @@ export class IIQClient implements vscode.Disposable {
     }
   }
 
-  private async findIIQObjects() {
-    const objects: string[] = [];
+  private async findIIQObjects(): Promise<vscode.Uri[]> {
+    const classobjects: vscode.Uri[] = [];
     const files = await vscode.workspace.findFiles('objects/**/*.xml');
     for (let idx in files) {
       const doc = await vscode.workspace.openTextDocument(files[idx]);
@@ -374,12 +412,13 @@ export class IIQClient implements vscode.Disposable {
         switch (matches.groups['type']) {
           case 'Rule':
           case 'TaskDefinition':
-            objects.push(files[idx].fsPath);
+            classobjects.push(files[idx]);
             break;
         }
       }
     }
-    vscode.commands.executeCommand('setContext', 'vscode-sailpoint-iiq.objects', objects);
+    vscode.commands.executeCommand('setContext', 'vscode-sailpoint-iiq.objects', classobjects.map<string>(f => f.fsPath));
+    return classobjects;
   }
 
   private async init(): Promise<void> {

@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const contentSchema = 'sailpoint-iiq';
 	const contentProvider = new IIQTextDocumentContentProvider();
-	const output = vscode.window.createOutputChannel('SailPoint IdentityIQ', 'Log');
+	const output = vscode.window.createOutputChannel('SailPoint IdentityIQ', 'log');
 	const logger = new Logger(output, vscode.workspace.getConfiguration('vscode-sailpoint-iiq'));
 	const authProvider = new SailPointIIQAuthenticationProvider(context.secrets, logger);
 	
@@ -43,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.open', (iiqClass, iiqObject) => client.previewClassObject(iiqClass, iiqObject)),
 		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.downloadAll', (iiqClass) => client.downloadAllObjects(iiqClass)),
 		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.download', (iiqClass, iiqObject) => client.downloadObject(iiqClass, iiqObject)),
-		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.upload', (file) => client.uploadObject(file)),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.upload', (_, files) => client.uploadObject(files)),
 		client,
 		output
 	);

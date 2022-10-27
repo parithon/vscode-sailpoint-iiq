@@ -30,15 +30,21 @@
         "properties": {
           "vscode-sailpoint-iiq.logLevel": {
             "type": "string",
+            "title": "Log Level",
             "description": "The log level to use for the output channel.",
             "default": "error",
-            "scope": "application",
             "enum": [
               "info",
               "warn",
               "error",
               "debug"
             ]
+          },
+          "vscode-sailpoint-iiq.challengeFileUpload": {
+            "type": "boolean",
+            "title": "Ask to Upload Multiple Files",
+            "description": "Asks whether you want to upload multiple files.",
+            "default": true
           }
         }
       }
@@ -117,7 +123,7 @@
         "title": "Upload Object to IdentityIQ",
         "icon": "$(cloud-upload)",
         "category": "IdentityIQ",
-        "enablement": "vscode-sailpoint-iiq.environmentSelected",
+        "enablement": "vscode-sailpoint-iiq.environmentSelected && view == explorer",
         "shortTitle": "Upload"
       }
     ],
