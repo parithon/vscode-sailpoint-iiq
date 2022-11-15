@@ -3,6 +3,15 @@
   "displayName": "SailPoint IdentityIQ Developer Accelerator",
   "description": "",
   "version": "0.0.1",
+  "publisher": "parithon",
+  "author": {
+    "name": "Anthony Conrad",
+    "email": "parithon@outlook.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/parithon/vscode-sailpoint-iiq"
+  },
   "engines": {
     "vscode": "^1.72.0"
   },

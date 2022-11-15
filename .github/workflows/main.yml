@@ -19,17 +19,20 @@ jobs:
         node-version: 16.x
 
     - name: Versioning
-      id: set_version
+      id: get-version
       shell: pwsh
       run: |
         $packageJSON = Get-Content .\package.json | ConvertFrom-Json
-        echo "::set-output name=value::$($packageJSON.Version).$((git status | Select-String "On branch (?<branch>.*)").Matches.Groups.Where{$_.Name -eq "branch"}.Value -replace "/","_")+$((git log | Select-Object -First 1 | Select-String "commit (?<id>\w+)").Matches.Groups.Where{$_.Name -eq "id"}.Value.Substring(0,8))"
+        $version = "$($packageJSON.Version)-$((git status | Select-String "On branch (?<branch>.*)").Matches.Groups.Where{$_.Name -eq "branch"}.Value -replace "/","_")+$((git log | Select-Object -First 1 | Select-String "commit (?<id>\w+)").Matches.Groups.Where{$_.Name -eq "id"}.Value.Substring(0,8))"
+        echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+        Write-Output "Version: $version"
 
     - name: Package
       shell: pwsh
       env:
-        version=${{steps.set_version.outputs.value}}
+        version: ${{ steps.get-version.outputs.VERSION }}
       run: |
+        Write-Output "Using version: ${{ steps.get-version.outputs.VERSION }}"
         $packageJSON = Get-Content .\package.json | ConvertFrom-Json
         $packageJSON.Version = $env:version
         $packageJSON | ConvertTo-Json -Depth 99 | Set-Content .\package.json -Encoding UTF8
@@ -44,10 +47,10 @@ jobs:
       uses: marvinpinto/action-automatic-releases@v1.2.1
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        automatic_release_tag: "v${{steps.set_version.outputs.value}}"
+        automatic_release_tag: "v${{ steps.get-version.outputs.VERSION }}"
         draft: true
         prerelease: true
         title: "Prerelease Build"
         files: |
-          LICENSE.md
+          LICENSE
           *.vsix
