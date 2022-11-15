@@ -1,0 +1,53 @@
+name: Create Pre-release
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Use Node.js 16.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+
+    - name: Versioning
+      id: set_version
+      shell: pwsh
+      run: |
+        $packageJSON = Get-Content .\package.json | ConvertFrom-Json
+        echo "::set-output name=value::$($packageJSON.Version).$((git status | Select-String "On branch (?<branch>.*)").Matches.Groups.Where{$_.Name -eq "branch"}.Value -replace "/","_")+$((git log | Select-Object -First 1 | Select-String "commit (?<id>\w+)").Matches.Groups.Where{$_.Name -eq "id"}.Value.Substring(0,8))"
+
+    - name: Package
+      shell: pwsh
+      env:
+        version=${{steps.set_version.outputs.value}}
+      run: |
+        $packageJSON = Get-Content .\package.json | ConvertFrom-Json
+        $packageJSON.Version = $env:version
+        $packageJSON | ConvertTo-Json -Depth 99 | Set-Content .\package.json -Encoding UTF8
+
+        $workflow = Get-Content .\content\VSCodeExtensionWF.xml -Raw
+        $workflow -replace "return ""$($packageJSON.Version)""", "return ""$env:version""" | Set-Content .\content\VSCodeExtensionWF.xml -Encoding UTF8
+        
+        npm install
+        npx vsce package --pre-release --no-git-tag-version --no-update-package-json $env:version
+    
+    - name: Publish Prerelease
+      uses: marvinpinto/action-automatic-releases@v1.2.1
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        automatic_release_tag: "v${{steps.set_version.outputs.value}}"
+        draft: true
+        prerelease: true
+        title: "Prerelease Build"
+        files: |
+          LICENSE.md
+          *.vsix
