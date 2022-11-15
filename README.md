@@ -1,71 +1,53 @@
-# vscode-sailpoint-iiq README
+<div style="text-align: center;">
 
-This is the README for your extension "vscode-sailpoint-iiq". After writing up a brief description, we recommend including the following sections.
+![vscode-sailpoint-iiq icon](./media/iiqexplore-256.png "vscode-sailpoint-iiq icon")
 
-## Features
+# VSCode SailPoint IdentityIQ Extension
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+</div>
 
-For example if there is an image subfolder under your extension project workspace:
+![GitHub package.json version](https://img.shields.io/github/package-json/v/parithon/vscode-sailpoint-iiq?label=github%20version&style=for-the-badge)
+![GitHub top language](https://img.shields.io/github/languages/top/parithon/vscode-sailpoint-iiq?style=for-the-badge)
+![Snyk Vulnerabilities for GitHub Repo](https://img.shields.io/snyk/vulnerabilities/github/parithon/vscode-sailpoint-iiq?label=SYNK%20Vulnerabilities&style=for-the-badge)
+<!-- ![GitHub all releases](https://img.shields.io/github/downloads/parithon/vscode-sailpoint-iiq/total?style=for-the-badge) -->
+<!-- ![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/1?label=Marketplace%20Version&style=for-the-badge) -->
 
-\!\[feature X\]\(images/feature-x.png\)
+This is the `README` for the [vscode-sailpoint-iiq](https://marketplace.visualstudio.com/items?itemName=parithon.vscode-sailpoint-iiq) visual studio code extension. With this extension you will be able to communicate directly with your IdentityIQ server from within vscode!
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+# Requrirements
+In order to use this extension, you will need a running a [SailPoint IdentityIQ](https://www.sailpoint.com/products/identityIQ) instance and you will need to have the appropriate permissions to create and update workflows and access the REST API. Today, that requires that you are an admin within your instance.
 
-## Requirements
+# Prerequirement
+We use the workflow REST APIs in order to communicate with your IdentityIQ environment. In order to call the appropriate workflow, with the methods we use for this extension, you will need to import the workflow into your environment.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- An initial import of the `./media/VSCodeExtgensionWF.xml` file in order for this extension to interact with your IdentityIQ server. After this initial import is completed, this extension can update the workflow whenever an newer version has been released.
 
-## Extension Settings
+# Features
+The following features have been implmented into this extension. Additional features will be added as time permits.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## Commands:
 
-For example:
+- **Publish File** will publish the currently active text document to your IdentityIQ environment. If you are using a Services Standard Build (SSB) project, this will replace the tokens with the appropriate environment you have enabled.
 
-This extension contributes the following settings:
+- **Run Task** allows you to run a task on your IdentityIQ environment. This may be with or without any parameters
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+- **Run Rule** allows you to run a rule on your IdentityIQ environment. If an argument is expected the currently active text document will be evaluated using the SST layout; if no match is found an input will allow you to provide the argument.
 
-## Known Issues
+- **Evaluate Beanshell Script** will execute in your IdentityIQ environment the code you've seleted. 
+  - In order to observe the results, ensure that you include a `return` statement.
+  - After execution is complete, the results will be presented by a virtual document.
+  - You can also check your log file.
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- **Switch Environment** allows you to switch between multiple `*.target.properties` files.
+  - Ensure your *.target.properties document includes the `%%ECLIPSE_URL%%` token, this will be used to tell the extension which URL to communicate with.
+  - Do not include the following tokens as they will be ignored: `%%ECLIPSE_USER%%` and `%%ECLIPSE_PASS%%`
 
-## Release Notes
+- **Compare with Server** will open a comparison between your local copy of a file and what is currently deployed within your IdentityIQ environment.
 
-Users appreciate release notes as you update your extension.
+## User Interface:
 
-### 1.0.0
+- **IdentityIQ Activity View** will show you all the objects currently deployed in your IdentityIQ environment. From there, you can download the entire category or individual objects. If you're using SSB, the documents will be downloaded and values replaced with the tokens found in your projects current selected environment `*.target.properties` file.
 
-Initial release of ...
+- **Status Indicator** will show the currently selected environment, the username used to connect to your IdentityIQ server and provide some information about the server you're communicating with.
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+- **Syntax Highlighting** will be used within your beanshell documents. Your Java code will be colorized within your XML+beanshell documents.
