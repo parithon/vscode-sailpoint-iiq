@@ -192,7 +192,14 @@
           "when": "viewItem == iiqClassObject"
         }
       ]
-    }
+    },
+    "grammars": [
+      {
+        "injectTo": ["text.xml"],
+        "path": "./grammars/beanshell.json",
+        "scopeName": "text.xml.beanshell"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
