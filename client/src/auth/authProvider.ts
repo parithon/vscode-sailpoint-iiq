@@ -48,7 +48,7 @@ export class SailPointIIQAuthenticationProvider implements vscode.Authentication
 
   async getSessions(scopes?: readonly string[] | undefined): Promise<readonly vscode.AuthenticationSession[]> {
     const sessions = this._sessions.filter(session => scopes !== undefined ? session.scopes[0] === scopes[0] : true);
-    this.logger.debug(`Found ${sessions.length} sessions`, sessions);
+    this.logger.debug(`Found ${sessions.length} sessions`, sessions.map(session => Object.assign({}, session, { accessToken: "***" })));
     return sessions;
   }
 

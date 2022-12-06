@@ -130,7 +130,7 @@ export class IIQClient implements vscode.Disposable {
   }
 
   public async showServerInfo(): Promise<void> {
-    if (this.client && await this.client.authenticated()) {
+    if (this.client) {
       const serverInfos = await this.client.getServerInfo();
       if (serverInfos) {
         const uri = vscode.Uri.parse(`sailpoint-iiq://serverInfo/#${base64.encode(JSON.stringify(serverInfos))}`);
@@ -144,7 +144,7 @@ export class IIQClient implements vscode.Disposable {
   }
 
   public async getServerLog(): Promise<void> {
-    if (this.client && await this.client.authenticated()) {
+    if (this.client) {
       const log = await this.client.getLog();
       if (log) {
         const uri = vscode.Uri.parse(`sailpoint-iiq://log/#${base64.encode(log.replace(/\\n/g, "\n"))}`);
@@ -161,7 +161,7 @@ export class IIQClient implements vscode.Disposable {
   }
 
   public async getObject(): Promise<unknown> {
-    if (this.client && await this.client.authenticated()) {
+    if (this.client) {
       const classes = await this.client.getClasses();
       if (!classes) {
         vscode.window.showWarningMessage(`No classes were found, cancelled.`);

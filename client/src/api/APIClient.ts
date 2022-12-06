@@ -17,20 +17,30 @@ import {
   JsonPayloadArrayResult
 } from "./Response";
 
+interface WorkflowArgument {
+    workflowArgs: {
+        operation: string,
+        username?: string
+    }
+}
+
 export class APIClient {
   private readonly headers: Headers;
   private readonly agent: HttpAgent | HttpsAgent;
+  private readonly username: string;
 
   constructor(private readonly baseUrl: URL, credential: Credential, private readonly logger: Logger) {
     this.logger.debug(`A new IdentityIQ client has been initialized.`);
 
-      this.headers = new Headers();
-      this.headers.append('Content-Type', 'application/json');
-      this.headers.append('Authorization', `Basic ${base64.encode(`${credential.username}:${credential.password}`)}`);
+    this.headers = new Headers();
+    this.headers.append('Content-Type', 'application/json');
+    this.headers.append('Authorization', `Basic ${base64.encode(`${credential.username}:${credential.password}`)}`);
 
-      this.agent = baseUrl.protocol === 'https'
-          ? new HttpsAgent({ rejectUnauthorized: false })
-          : new HttpAgent();
+    this.agent = baseUrl.protocol === 'https'
+        ? new HttpsAgent({ rejectUnauthorized: false })
+        : new HttpAgent();
+
+    this.username = credential.username;
   }
 
   public async authenticated(): Promise<[boolean, string | undefined, string | undefined]> {
@@ -48,7 +58,7 @@ export class APIClient {
 
   public async getServerInfo(): Promise<SystemInfo | undefined> {
     const requestUrl = this.getSanitizedUrl(`${this.baseUrl}${PostServiceEndpoints.workflowUrl}`);
-    const body = {
+    const body: WorkflowArgument = {
         workflowArgs: {
             operation: 'getSysInfo'
         }
@@ -300,20 +310,24 @@ export class APIClient {
     return new URL(url);
   }
 
-  private get<T>(url: URL, body?: string | object): Promise<Response<T>> {
+  private get<T>(url: URL, body?: WorkflowArgument): Promise<Response<T>> {
     return this.req<T>('GET', url, body);
   }
 
-  private post<T>(url: URL, body?: string | object): Promise<Response<T>> {
+  private post<T>(url: URL, body?: WorkflowArgument): Promise<Response<T>> {
     return this.req<T>('POST', url, body);
   }
 
-  private async req<T>(type: "GET" | "POST", url: URL, body?: string | object): Promise<Response<T>> {
+  private async req<T>(type: "GET" | "POST", url: URL, body?: WorkflowArgument): Promise<Response<T>> {
     let response: Response<T> = { ok: false };
+
+    if (body) {
+        body.workflowArgs.username = this.username;
+    }
 
     const options = {
         method: type,
-        body: type === 'POST' ? isStringObject(body) ? body : JSON.stringify(body) : undefined,
+        body: type === 'POST' ? JSON.stringify(body) : undefined,
         headers: this.headers,
         agent: this.agent,
         timeout: 10000000

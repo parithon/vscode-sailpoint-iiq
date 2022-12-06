@@ -8,8 +8,8 @@
     <Script>
       <Source>
         import org.apache.log4j.Logger;
-        Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
-        iidDevAccelLogger.debug("Workflow VSCodeExtensionWF started for operation: " + operation); 
+        Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
+        iidDevAccelLogger.debug("Workflow VSCodeExtensionWF started for operation: " + operation);
       </Source>
     </Script>
     <Transition to="Get Version" when='"getVersion".equals(operation);'/>
@@ -38,7 +38,7 @@
       <Source>
         <![CDATA[
           import org.apache.log4j.Logger;
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           iidDevAccelLogger.debug("GetVersion is called");
           return "0.0.1";
         ]]>
@@ -61,7 +61,7 @@
           import sailpoint.tools.Util;
           import sailpoint.Version;
 
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           iidDevAccelLogger.debug("Getting System Info...");
           String[] logToSearchArr = {"log4j2.properties", "log4j.properties"};
           String contents = "";
@@ -105,7 +105,7 @@
           import org.apache.log4j.Logger;
           import org.apache.logging.log4j.LogManager;
           import org.apache.logging.log4j.core.LoggerContext;
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           iidDevAccelLogger.debug("Getting log file...");
           String[] logToSearchArr = {"log4j2.properties", "log4j.properties"};
           String contents = null;
@@ -144,7 +144,7 @@
         <![CDATA[ 
           import sailpoint.object.*; 
           import org.apache.log4j.Logger;
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           iidDevAccelLogger.debug("Started getting classes"); 
           List resultArray = new ArrayList();
           for(Class cls : ClassLists.MajorClasses){
@@ -174,7 +174,7 @@
         <![CDATA[ 
           import sailpoint.object.*; 
           import org.apache.log4j.Logger;
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           iidDevAccelLogger.debug("Started getting class objects for " + theClass); 
           Class myClass = null;
           for(Class cls : ClassLists.MajorClasses){
@@ -212,7 +212,7 @@
         <![CDATA[ 
           import sailpoint.object.*; 
           import org.apache.log4j.Logger;
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           iidDevAccelLogger.debug("Started getting class objects for " + theClass); 
           Class myClass = null;
           for(Class cls : ClassLists.MajorClasses){
@@ -260,7 +260,7 @@
         <![CDATA[ 
           import sailpoint.object.*; 
           import org.apache.log4j.Logger;
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           iidDevAccelLogger.debug("Started getting object for " + theClass + " and " + objName); 
           Class myClass = null;
           for(Class cls : ClassLists.MajorClasses){
@@ -300,7 +300,7 @@
           import sailpoint.tools.GeneralException; 
           import sailpoint.web.system.ImportBean.ImportMonitor; 
           import org.apache.log4j.Logger;
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
 
           iidDevAccelLogger.debug("Started Importer"); 
           Importer importer = new Importer(context, new ImportMonitor()); 
@@ -327,7 +327,7 @@
           import sailpoint.object.*;
           import sailpoint.api.*;
           import org.apache.log4j.Logger;
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           iidDevAccelLogger.debug("Started deleting object for " + theClass + " and " + objName); 
           Class myClass = null;
           for(Class cls : ClassLists.MajorClasses){
@@ -372,7 +372,7 @@
         <![CDATA[ 
           import sailpoint.object.*; 
           import org.apache.log4j.Logger;
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           iidDevAccelLogger.debug("Started Get Task List"); 
 
           List taskDefinitions = context.getObjects(TaskDefinition.class); 
@@ -396,7 +396,7 @@
           import sailpoint.object.*; 
           import sailpoint.api.TaskManager; 
           import org.apache.log4j.Logger;
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           iidDevAccelLogger.debug("Started Run Task: " + taskName); 
 
           TaskManager tm = new TaskManager(context); 
@@ -425,7 +425,7 @@
         <![CDATA[ 
           import sailpoint.object.*; 
           import org.apache.log4j.Logger;
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           QueryOptions qo = new QueryOptions();
           if(void != ruleName && null != ruleName){
             Filter f = Filter.eq("name", ruleName);
@@ -456,7 +456,7 @@
           import sailpoint.object.*;
           import java.util.*;
           import org.apache.log4j.Logger;
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           iidDevAccelLogger.debug("Run Rule: " + ruleName); 
           Object result = null;
           try{
@@ -485,7 +485,7 @@
           import org.apache.log4j.Logger;
           String injectContext = "import sailpoint.api.*;\nSailPointContext context = SailPointFactory.createPrivateContext();\n";
 
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           iidDevAccelLogger.debug("Evaluating beanshell script" + script); 
           File scriptFile = File.createTempFile("beanshell", null);
           //iidDevAccelLogger.debug("temp path: " + scriptFile.getAbsolutePath()); 
@@ -521,7 +521,7 @@
           import org.apache.log4j.Logger;
           import org.apache.logging.log4j.LogManager;
           import org.apache.logging.log4j.core.LoggerContext;
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           iidDevAccelLogger.debug("Reloading logging config...");
           String[] logToSearchArr = {"log4j2.properties", "log4j.properties"};
           String logFileName = null;
@@ -582,7 +582,7 @@
           import com.sun.jdi.connect.AttachingConnector;
           import com.sun.jdi.connect.Connector.Argument;
 
-          Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+          Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
           iidDevAccelLogger.debug("Importing Java File");
 
           private startRedeployment(){
@@ -708,25 +708,29 @@
     </Script>
     <Transition to="Stop"/>
   </Step>
+  -->
   <Step icon="Default" name="Invalid operation" resultVariable="payload">
     <Script>
       <Source>
         import org.apache.log4j.Logger;
-        Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+        Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
         iidDevAccelLogger.debug("Not supported operation: " + operation);         
         return operation + " not supported";
       </Source>
     </Script>
     <Transition to="Stop"/>
   </Step>
-  -->
   <Step icon="Stop" name="Stop">
     <Script>
       <Source>
         import org.apache.log4j.Logger;
-        Logger iidDevAccelLogger=Logger.getLogger("sailpoint.VSCodeExtensionWF"); 
+        Logger iidDevAccelLogger=Logger.getLogger("VSCodeExtensionWF"); 
         iidDevAccelLogger.debug("Workflow VSCodeExtensionWF stopped for operation: " + operation);
       </Source>
     </Script>
+    <Transition to="Audit" />
+  </Step>
+  <Step icon="Audit" name="Audit" action="audit">
+    <Arg name="source" value="ref:launcher"/>
   </Step>
 </Workflow>
