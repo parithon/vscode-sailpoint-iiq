@@ -259,12 +259,14 @@ export class IIQClient implements vscode.Disposable {
   public async downloadAllObjects(treeItem: IIQTreeItem, showProgress: boolean = true): Promise<void> {
     const className = treeItem.label;
     if (this.currentEnvironment && this.client) {
+      const subfolder = this.configuration.get<string>('downloadSubfolder');
       const workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath;
       const objects = await this.client.getClassObjectsContents(className, showProgress);
+      const basepath = vscode.Uri.file(`${workspacePath}/config/${className}/${subfolder}`).fsPath;
       objects?.forEach(async (objectJSON) => {
         const object: {name: string, value: string} = JSON.parse(objectJSON);
-        await fs.mkdir(`${workspacePath}/config/${className}`, { recursive: true });
-        await fs.writeFile(`${workspacePath}/config/${className}/${object.name}.xml`, this.cleanObjectMetadata(base64.decode(object.value)), { encoding: 'utf8' });
+        await fs.mkdir(`${basepath}`, { recursive: true });
+        await fs.writeFile(`${basepath}/${object.name}.xml`, this.cleanObjectMetadata(base64.decode(object.value)), { encoding: 'utf8' });
       });
     }
     this.findIIQObjects();
@@ -272,11 +274,13 @@ export class IIQClient implements vscode.Disposable {
 
   public async downloadObject(node: IIQObjectTreeItem, showProgress: boolean = true): Promise<void> {
     if (this.currentEnvironment && this.client) {
+      const subfolder = this.configuration.get<string>('downloadSubfolder');
       const workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath;
       const obj = await this.client.getClassObject(node.className, node.label, showProgress);
+      const basepath = vscode.Uri.file(`${workspacePath}/config/${node.className}/${subfolder}`).fsPath;
       if (obj) {
-        await fs.mkdir(`${workspacePath}/config/${node.className}`, { recursive: true });
-        await fs.writeFile(`${workspacePath}/config/${node.className}/${node.label}.xml`, this.cleanObjectMetadata(obj), { encoding: 'utf-8' });
+        await fs.mkdir(`${basepath}`, { recursive: true });
+        await fs.writeFile(`${basepath}\\${node.label}.xml`, this.cleanObjectMetadata(obj), { encoding: 'utf-8' });
         this.findIIQObjects();
       }
     }

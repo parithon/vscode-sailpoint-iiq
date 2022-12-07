@@ -54,6 +54,12 @@
             "title": "Ask to Upload Multiple Files",
             "description": "Asks whether you want to upload multiple files.",
             "default": true
+          },
+          "vscode-sailpoint-iiq.downloadSubfolder": {
+            "type": "string",
+            "title": "Download Subfolder",
+            "description": "A subfolder within the config/<object> folder that will be used to download your objects to.",
+            "default": ""
           }
         }
       }
