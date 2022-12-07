@@ -263,8 +263,8 @@ export class IIQClient implements vscode.Disposable {
       const objects = await this.client.getClassObjectsContents(className, showProgress);
       objects?.forEach(async (objectJSON) => {
         const object: {name: string, value: string} = JSON.parse(objectJSON);
-        await fs.mkdir(`${workspacePath}/objects/${className}`, { recursive: true });
-        await fs.writeFile(`${workspacePath}/objects/${className}/${object.name}.xml`, base64.decode(object.value), { encoding: 'utf8' });
+        await fs.mkdir(`${workspacePath}/config/${className}`, { recursive: true });
+        await fs.writeFile(`${workspacePath}/config/${className}/${object.name}.xml`, base64.decode(object.value), { encoding: 'utf8' });
       });
     }
     this.findIIQObjects();

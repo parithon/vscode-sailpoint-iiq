@@ -5,3 +5,4 @@ node_modules
 *.vsix
 *.target.secrets.properties
 test/project/**/*
+!test/project/lib/README.md
