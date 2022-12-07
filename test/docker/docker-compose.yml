@@ -8,8 +8,8 @@ services:
       - sailpoint-iiq-db:/var/lib/mysql:rw
   iiq:
     build:
-      context: .
-      dockerfile: ./sailpoint-iiq/Dockerfile
+      context: ../..
+      dockerfile: ./test/docker/sailpoint-iiq/Dockerfile
     ports:
       - "127.0.0.1:8080:8080/tcp"
     depends_on:
@@ -18,7 +18,7 @@ services:
       - MYSQL_USER=root
       - MYSQL_PASS=admin
       - MYSQL_HOST=db
-      - IIQ_VERSION=8.3
-      - IIQ_PATCH=8.3p1
+      - IIQ_VERSION=8.1
+      - IIQ_PATCH=8.1p2
 volumes:
   sailpoint-iiq-db:

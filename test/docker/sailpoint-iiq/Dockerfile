@@ -6,20 +6,21 @@ FROM prepare AS build
 
 RUN apt update && apt install unzip -y
 
-COPY media/ /var/tmp/sailpoint-iiq/
+COPY test/docker/media/ /var/tmp/sailpoint-iiq/
 
 RUN unzip /var/tmp/sailpoint-iiq/*.zip -d /var/tmp/sailpoint-iiq/iiq \
   && mkdir -p /usr/local/tomcat/webapps/identityiq \
   && unzip /var/tmp/sailpoint-iiq/iiq/identityiq.war -d /usr/local/tomcat/webapps/identityiq \
-  && find /var/tmp/sailpoint-iiq/patch -type f -exec unzip -o -d /usr/local/tomcat/webapps/identityiq {} + \
-  && find /var/tmp/sailpoint-iiq/efix -type f -exec unzip -o -d /usr/local/tomcat/webapps/identityiq {} + \
+  && find /var/tmp/sailpoint-iiq/patch -name "*.jar" -type f -exec unzip -o -d /usr/local/tomcat/webapps/identityiq {} + \
+  && find /var/tmp/sailpoint-iiq/efix -name "*.jar" -type f -exec unzip -o -d /usr/local/tomcat/webapps/identityiq {} + \
   && rm -rf /var/tmp/sailpoint-iiq
 
 FROM prepare AS runtime
 
 COPY --from=build /usr/local/tomcat/webapps/identityiq /usr/local/tomcat/webapps/identityiq
-COPY src/classes/*.* /usr/local/tomcat/webapps/identityiq/WEB-INF/classes
-COPY src/ /opt/sailpoint/
+COPY test/docker/src/classes/*.* /usr/local/tomcat/webapps/identityiq/WEB-INF/classes
+COPY test/docker/src/ /opt/sailpoint/
+COPY content/VSCodeExtensionWF.xml /opt/sailpoint/config/Workflow/
 RUN chmod u+x /usr/local/tomcat/webapps/identityiq/WEB-INF/bin/iiq \
   && chmod u+x /opt/sailpoint/*.sh
 WORKDIR /opt/sailpoint
