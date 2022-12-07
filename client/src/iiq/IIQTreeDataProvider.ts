@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { IIQClient } from './IIQClient';
-import { IIQTreeItem } from './IIQTreeItem';
+import { IIQClassTreeItem, IIQObjectTreeItem, IIQTreeItem } from './IIQTreeItem';
 
 export class IIQTreeDataProvider implements vscode.TreeDataProvider<IIQTreeItem> {
   private readonly _onDidChangeTreeData: vscode.EventEmitter<IIQTreeItem | undefined| void> = new vscode.EventEmitter();
@@ -25,7 +25,7 @@ export class IIQTreeDataProvider implements vscode.TreeDataProvider<IIQTreeItem>
     if (element) {
       const objs = await this.iiqClient.getObjects(element.label, false);
       if (objs) {
-        const nodes = objs.map(obj => new IIQTreeItem(obj, vscode.TreeItemCollapsibleState.None, {
+        const nodes = objs.map(obj => new IIQObjectTreeItem(obj, element.label, {
           "command": "vscode-sailpoint-iiq.explorer.object.open",
           "title": "Open IdentityIQ Class Object",
           "arguments": [element.label, obj]
@@ -35,7 +35,7 @@ export class IIQTreeDataProvider implements vscode.TreeDataProvider<IIQTreeItem>
     } else {
       const classes = await this.iiqClient.getClasses(false);
       if (classes) {
-        const nodes = classes.map(c => new IIQTreeItem(c, vscode.TreeItemCollapsibleState.Collapsed));
+        const nodes = classes.map(c => new IIQClassTreeItem(c, vscode.TreeItemCollapsibleState.Collapsed));
         return nodes;
       }
     }

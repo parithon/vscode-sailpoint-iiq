@@ -8,7 +8,7 @@ import { SailPointIIQAuthenticationProvider } from '../auth/authProvider';
 import { Logger } from '../common';
 import { Environment } from './Environment';
 import { APIClient, Credential } from '../api';
-import { IIQTreeItem } from './IIQTreeItem';
+import { IIQObjectTreeItem, IIQTreeItem } from './IIQTreeItem';
 
 export class IIQClient implements vscode.Disposable {
   private readonly _onDidChangeEnvironment: vscode.EventEmitter<void> = new vscode.EventEmitter();
@@ -246,7 +246,7 @@ export class IIQClient implements vscode.Disposable {
     if (this.currentEnvironment && this.client) {
       const obj = await this.client.getClassObject(className, objectName, showProgress);
       if (obj) {
-        const uri = vscode.Uri.parse(`sailpoint-iiq://object/${className}/${objectName}/#${base64.encode(obj.replace(/\\n/g, "\n"))}`);
+        const uri = vscode.Uri.parse(`sailpoint-iiq://object/${className}/${objectName}/#${base64.encode(this.cleanObjectMetadata(obj).replace(/\\n/g, "\n"))}`);
         this.logger.debug(`Opening virtual document to view the document.`, uri);
         const doc = await vscode.workspace.openTextDocument(uri);
         if (doc) {
@@ -264,19 +264,26 @@ export class IIQClient implements vscode.Disposable {
       objects?.forEach(async (objectJSON) => {
         const object: {name: string, value: string} = JSON.parse(objectJSON);
         await fs.mkdir(`${workspacePath}/config/${className}`, { recursive: true });
-        await fs.writeFile(`${workspacePath}/config/${className}/${object.name}.xml`, base64.decode(object.value), { encoding: 'utf8' });
+        await fs.writeFile(`${workspacePath}/config/${className}/${object.name}.xml`, this.cleanObjectMetadata(base64.decode(object.value)), { encoding: 'utf8' });
       });
     }
     this.findIIQObjects();
   }
 
-  public async downloadObject(className: string, objectName: string, showProgress: boolean = true): Promise<void> {
+  public async downloadObject(node: IIQObjectTreeItem, showProgress: boolean = true): Promise<void> {
     if (this.currentEnvironment && this.client) {
-      const obj = await this.client.getClassObject(className, objectName, showProgress);
+      const workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath;
+      const obj = await this.client.getClassObject(node.className, node.label, showProgress);
       if (obj) {
-        // TODO: Save the file to a location provided.
+        await fs.mkdir(`${workspacePath}/config/${node.className}`, { recursive: true });
+        await fs.writeFile(`${workspacePath}/config/${node.className}/${node.label}.xml`, this.cleanObjectMetadata(obj), { encoding: 'utf-8' });
+        this.findIIQObjects();
       }
     }
+  }
+
+  private cleanObjectMetadata(value: string) : string {
+    return value.replace(/id="\w*"\s?|created="\w*"\s?|modified="\w*"\s?/g,'');
   }
 
   public async uploadObject(files: vscode.Uri[]) {
@@ -404,20 +411,29 @@ export class IIQClient implements vscode.Disposable {
 
   private async findIIQObjects(): Promise<vscode.Uri[]> {
     const classobjects: vscode.Uri[] = [];
-    const files = await vscode.workspace.findFiles('objects/**/*.xml');
+    const files = await vscode.workspace.findFiles('config/**/*.xml');
     for (let idx in files) {
+      if (files[idx].fsPath.endsWith('VSCodeExtensionWF.xml')) { continue; }
       const doc = await vscode.workspace.openTextDocument(files[idx]);
       const matches = doc.getText()?.match(/!DOCTYPE (?<type>\w+)/);
+      const matches2 = doc.getText()?.match(/<Workflow.*name="(?<name>\w+)"/);
+      if (matches2 && matches2.groups && matches2.groups['name'] && matches2.groups['name'].toLocaleLowerCase() === "vscodeextensionwf".toLocaleLowerCase()) {
+        // DO NOT ALLOW MANUAL UPLOADING OF THE WORKFLOW FROM THE EXTENSION
+        continue;
+      }
       if (matches && matches.groups && matches.groups['type']) {
         switch (matches.groups['type']) {
           case 'Rule':
           case 'TaskDefinition':
             classobjects.push(files[idx]);
             break;
+          default:
+            classobjects.push(files[idx]);
+            break;
         }
       }
     }
-    vscode.commands.executeCommand('setContext', 'vscode-sailpoint-iiq.objects', classobjects.map<string>(f => f.fsPath));
+    vscode.commands.executeCommand('setContext', 'vscode-sailpoint-iiq.config', classobjects.map<string>(f => f.fsPath));
     return classobjects;
   }
 

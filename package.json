@@ -132,8 +132,7 @@
         "title": "Upload Object to IdentityIQ",
         "icon": "$(cloud-upload)",
         "category": "IdentityIQ",
-        "enablement": "vscode-sailpoint-iiq.environmentSelected && view == explorer",
-        "shortTitle": "Upload"
+        "enablement": "vscode-sailpoint-iiq.environmentSelected"
       }
     ],
     "viewsContainers": {
@@ -162,14 +161,14 @@
         {
           "command": "vscode-sailpoint-iiq.explorer.object.upload",
           "group": "1_modification",
-          "when": "resourcePath in vscode-sailpoint-iiq.objects"
+          "when": "resourcePath in vscode-sailpoint-iiq.config"
         }
       ],
       "editor/context":[
         {
           "command": "vscode-sailpoint-iiq.explorer.object.upload",
           "group": "1_run",
-          "when": "resourcePath in vscode-sailpoint-iiq.objects"
+          "when": "resourcePath in vscode-sailpoint-iiq.config"
         }
       ],
       "view/title": [

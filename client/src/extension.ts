@@ -42,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.refresh', (node: IIQTreeItem) => treeDataProvider.refresh(node)),
 		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.open', (iiqClass, iiqObject) => client.previewClassObject(iiqClass, iiqObject)),
 		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.downloadAll', (iiqClass) => client.downloadAllObjects(iiqClass)),
-		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.download', (iiqClass, iiqObject) => client.downloadObject(iiqClass, iiqObject)),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.download', (iiqClass) => client.downloadObject(iiqClass)),
 		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.upload', (_, files) => client.uploadObject(files)),
 		client,
 		output
