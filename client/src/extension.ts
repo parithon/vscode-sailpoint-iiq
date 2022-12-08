@@ -3,7 +3,9 @@ import * as vscode from 'vscode';
 import { Logger } from './common';
 import { SailPointIIQAuthenticationProvider } from './auth/authProvider';
 import { 
+	IIQClassTreeItem,
 	IIQClient, 
+	IIQObjectTreeItem, 
 	IIQTextDocumentContentProvider,
 	IIQTreeDataProvider,
 	IIQTreeItem
@@ -40,9 +42,9 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('vscode-sailpoint-iiq.getObject', () => client.getObject()),
 		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.refresh', () => treeDataProvider.refresh()),
 		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.refresh', (node: IIQTreeItem) => treeDataProvider.refresh(node)),
-		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.open', (iiqClass, iiqObject) => client.previewClassObject(iiqClass, iiqObject)),
-		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.downloadAll', (iiqClass) => client.downloadAllObjects(iiqClass)),
-		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.download', (iiqClass) => client.downloadObject(iiqClass)),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.open', (className: string, objectName: string) => client.previewClassObject(className, objectName)),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.downloadAll', (node: IIQClassTreeItem) => client.downloadAllObjects(node)),
+		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.download', (node: IIQObjectTreeItem) => client.downloadObject(node)),
 		vscode.commands.registerCommand('vscode-sailpoint-iiq.explorer.object.upload', (_, files) => client.uploadObject(files)),
 		client,
 		output

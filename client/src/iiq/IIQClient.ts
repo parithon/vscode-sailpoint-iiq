@@ -8,7 +8,7 @@ import { SailPointIIQAuthenticationProvider } from '../auth/authProvider';
 import { Logger } from '../common';
 import { Environment } from './Environment';
 import { APIClient, Credential } from '../api';
-import { IIQObjectTreeItem, IIQTreeItem } from './IIQTreeItem';
+import { IIQClassTreeItem, IIQObjectTreeItem } from './IIQTreeItem';
 
 export class IIQClient implements vscode.Disposable {
   private readonly _onDidChangeEnvironment: vscode.EventEmitter<void> = new vscode.EventEmitter();
@@ -256,8 +256,8 @@ export class IIQClient implements vscode.Disposable {
     }
   }
 
-  public async downloadAllObjects(treeItem: IIQTreeItem, showProgress: boolean = true): Promise<void> {
-    const className = treeItem.label;
+  public async downloadAllObjects(node: IIQClassTreeItem, showProgress: boolean = true): Promise<void> {
+    const className = node.label;
     if (this.currentEnvironment && this.client) {
       const subfolder = this.configuration.get<string>('downloadSubfolder');
       const workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath;
