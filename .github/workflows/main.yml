@@ -23,7 +23,7 @@ jobs:
       shell: pwsh
       run: |
         $packageJSON = Get-Content .\package.json | ConvertFrom-Json
-        $version = [Version]$packageJSON
+        $version = [Version]$packageJSON.version
         $version = [Version]::new($version.Major,$version.Minor,$version.Build+1)
         echo "VERSION=$version" >> $env:GITHUB_OUTPUT
         Write-Output "Version: $version"
