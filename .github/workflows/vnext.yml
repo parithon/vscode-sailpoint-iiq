@@ -1,8 +1,8 @@
-name: Create Release
+name: Create Pre-release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "vnext" ]
 
 jobs:
   build:
@@ -23,8 +23,7 @@ jobs:
       shell: pwsh
       run: |
         $packageJSON = Get-Content .\package.json | ConvertFrom-Json
-        $version = [Version]$packageJSON
-        $version = [Version]::new($version.Major,$version.Minor,$version.Build+1)
+        $version = "$($packageJSON.Version)+$((git log | Select-Object -First 1 | Select-String "commit (?<id>\w+)").Matches.Groups.Where{$_.Name -eq "id"}.Value.Substring(0,8))"
         echo "VERSION=$version" >> $env:GITHUB_OUTPUT
         Write-Output "Version: $version"
 
